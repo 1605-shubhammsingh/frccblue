@@ -171,8 +171,8 @@ class FrccbluePlugin() : MethodCallHandler {
 
 
         writeCharacteristic = BluetoothGattCharacteristic(UUID.fromString(Write_Characteristic_UUID),
-                BluetoothGattCharacteristic.PROPERTY_WRITE or BluetoothGattCharacteristic.PROPERTY_NOTIFY,
-                BluetoothGattCharacteristic.PERMISSION_WRITE or BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                BluetoothGattCharacteristic.PROPERTY_WRITE or BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE,
+                BluetoothGattCharacteristic.PERMISSION_WRITE or BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
         )
         val bluetoothGattWriteDescriptor = BluetoothGattDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"), BluetoothGattDescriptor.PERMISSION_WRITE)
         writeCharacteristic!!.addDescriptor(bluetoothGattWriteDescriptor)
@@ -216,8 +216,8 @@ class FrccbluePlugin() : MethodCallHandler {
         readElapsedCharacteristic.addDescriptor(bluetoothGattReadDescriptor)
 
         val writeElapsedCharacteristic = BluetoothGattCharacteristic(UUID.fromString(Write_Characteristic_UUID),
-                BluetoothGattCharacteristic.PROPERTY_NOTIFY or BluetoothGattCharacteristic.PROPERTY_WRITE,
-                BluetoothGattCharacteristic.PERMISSION_WRITE or BluetoothGattCharacteristic.PROPERTY_NOTIFY)
+                BluetoothGattCharacteristic.PROPERTY_WRITE or BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE,
+                BluetoothGattCharacteristic.PERMISSION_WRITE or BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)
 
         val bluetoothGattWriteDescriptor = BluetoothGattDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"), BluetoothGattDescriptor.PERMISSION_WRITE)
 
