@@ -34,7 +34,7 @@ class FrccbluePlugin() : MethodCallHandler {
 
         @JvmStatic
         fun registerWith(registrar: Registrar): Unit {
-            var channel = MethodChannel(registrar.messenger(), "frccblue")
+            var channel = MethodChannel(registrar.messenger(), "bluetooth_peripheral")
             channel.setMethodCallHandler(FrccbluePlugin())
             FrccbluePlugin.activity = registrar.activity()
             FrccbluePlugin.channel = channel
@@ -48,7 +48,8 @@ class FrccbluePlugin() : MethodCallHandler {
         if (call.method.equals("startPeripheral")) {
             print("startPeripheral")
             Service_UUID = call.argument<String>("serviceUUID").toString()
-            Characteristic_UUID = call.argument<String>("characteristicUUID").toString()
+            Read_Characteristic_UUID = call.argument<String>("readCharacteristicUUID").toString()
+            Write_Characteristic_UUID = call.argument<String>("writeCharacteristicUUID").toString()
             startPeripheral()
         }
         if (call.method.equals("stopPeripheral")) {
@@ -59,21 +60,28 @@ class FrccbluePlugin() : MethodCallHandler {
             var centraluuidString = call.argument<String>("centraluuidString")
             var characteristicuuidString = call.argument<String>("characteristicuuidString")
             var data = call.argument<ByteArray>("data")
+            var isRead = call.argument<Boolean>("isRead")
 
             val device = centralsDic.get(centraluuidString)
 //            val characteristic = characteristicsDic.get(characteristicuuidString)
 //            characteristic?.setValue(data)
-            mCharacteristic?.value = data
-            mGattServer?.notifyCharacteristicChanged(device, mCharacteristic, false)
+            if (isRead == true) {
+                readCharacteristic?.value = data
+                mGattServer?.notifyCharacteristicChanged(device, readCharacteristic, false)
+            } else {
+                writeCharacteristic?.value = data
+                mGattServer?.notifyCharacteristicChanged(device, writeCharacteristic, false)
+            }
+
         }
     }
 
     private var mBluetoothManager: BluetoothManager? = null
     private var mBluetoothAdapter: BluetoothAdapter? = null
-    //    private var mBluetoothLeAdvertiser: BluetoothLeAdvertiser? = null
     private var mGattServer: BluetoothGattServer? = null
     private var Service_UUID: String = UUID.randomUUID().toString()
-    private var Characteristic_UUID: String = UUID.randomUUID().toString()
+    private var Read_Characteristic_UUID: String = UUID.randomUUID().toString()
+    private var Write_Characteristic_UUID: String = UUID.randomUUID().toString()
     private var centralsDic: MutableMap<String, BluetoothDevice> = HashMap()
     private var characteristicsDic: MutableMap<String, BluetoothGattCharacteristic> = HashMap()
     private var descriptorsDic: MutableMap<String, BluetoothGattDescriptor> = HashMap()
@@ -85,7 +93,8 @@ class FrccbluePlugin() : MethodCallHandler {
     private var mAdvSettings: AdvertiseSettings? = null
     private var mBluetoothGattService: BluetoothGattService? = null
     private var mAdvertiser: BluetoothLeAdvertiser? = null
-    private var mCharacteristic: BluetoothGattCharacteristic? = null
+    private var readCharacteristic: BluetoothGattCharacteristic? = null
+    private var writeCharacteristic: BluetoothGattCharacteristic? = null
 
     private val mAdvCallback: AdvertiseCallback = object : AdvertiseCallback() {
         override fun onStartFailure(errorCode: Int) {
@@ -153,21 +162,26 @@ class FrccbluePlugin() : MethodCallHandler {
         mBluetoothGattService = BluetoothGattService(UUID.fromString(Service_UUID),
                 BluetoothGattService.SERVICE_TYPE_PRIMARY)
 
+        readCharacteristic = BluetoothGattCharacteristic(UUID.fromString(Read_Characteristic_UUID),
+                BluetoothGattCharacteristic.PROPERTY_READ or BluetoothGattCharacteristic.PROPERTY_NOTIFY,
+                BluetoothGattCharacteristic.PERMISSION_READ or BluetoothGattCharacteristic.PROPERTY_NOTIFY
+        )
+        val bluetoothGattReadDescriptor = BluetoothGattDescriptor(UUID.fromString("00002901-0000-1000-8000-00805f9b34fb"), BluetoothGattDescriptor.PERMISSION_READ)
+        readCharacteristic!!.addDescriptor(bluetoothGattReadDescriptor)
 
-        mCharacteristic = BluetoothGattCharacteristic(UUID.fromString(Characteristic_UUID),
-                //Read write characteristic, supports notifications
-                BluetoothGattCharacteristic.PROPERTY_READ or BluetoothGattCharacteristic.PROPERTY_NOTIFY or BluetoothGattCharacteristic.PROPERTY_WRITE,
-                BluetoothGattCharacteristic.PERMISSION_READ or BluetoothGattCharacteristic.PERMISSION_WRITE or BluetoothGattCharacteristic.PROPERTY_NOTIFY)
-        val bluetoothGattDescriptor = BluetoothGattDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"), BluetoothGattDescriptor.PERMISSION_READ or BluetoothGattDescriptor.PERMISSION_WRITE)
-        mCharacteristic!!.addDescriptor(bluetoothGattDescriptor)
+
+        writeCharacteristic = BluetoothGattCharacteristic(UUID.fromString(Write_Characteristic_UUID),
+                BluetoothGattCharacteristic.PROPERTY_WRITE or BluetoothGattCharacteristic.PROPERTY_NOTIFY,
+                BluetoothGattCharacteristic.PERMISSION_WRITE or BluetoothGattCharacteristic.PROPERTY_NOTIFY
+        )
+        val bluetoothGattWriteDescriptor = BluetoothGattDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"), BluetoothGattDescriptor.PERMISSION_WRITE)
+        writeCharacteristic!!.addDescriptor(bluetoothGattWriteDescriptor)
 
         mBluetoothGattService = BluetoothGattService(UUID.fromString(Service_UUID),
                 BluetoothGattService.SERVICE_TYPE_PRIMARY)
-        mBluetoothGattService!!.addCharacteristic(mCharacteristic)
+        mBluetoothGattService!!.addCharacteristic(readCharacteristic)
+        mBluetoothGattService!!.addCharacteristic(writeCharacteristic)
 
-
-        // Add a service for a total of three services (Generic Attribute and Generic Access
-        // are present by default).
         mGattServer!!.addService(mBluetoothGattService);
 
         if (mBluetoothAdapter!!.isMultipleAdvertisementSupported()) {
@@ -176,53 +190,6 @@ class FrccbluePlugin() : MethodCallHandler {
         } else {
             Toast.makeText(FrccbluePlugin.activity?.applicationContext, "MultipleAdvertisement not Supported", Toast.LENGTH_SHORT).show()
         }
-
-
-//        /*
-//         * Bluetooth in Android 4.3+ is accessed via the BluetoothManager, rather than
-//         * the old static BluetoothAdapter.getInstance()
-//         */
-//        mBluetoothManager = activity?.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?
-//        mBluetoothAdapter = mBluetoothManager?.getAdapter()
-//
-//        /*
-//         * We need to enforce that Bluetooth is first enabled, and take the
-//         * user to settings to enable it if they have not done so.
-//         */
-//        if (mBluetoothAdapter == null || !mBluetoothAdapter!!.isEnabled()) {
-//            //Bluetooth is disabled
-//            handler.post(Runnable {
-//                channel?.invokeMethod("peripheralManagerDidUpdateState", "poweredOff")
-//            })
-//            return
-//        }
-//
-//        /*
-//         * Check for Bluetooth LE Support.  In production, our manifest entry will keep this
-//         * from installing on these devices, but this will allow test devices or other
-//         * sideloads to report whether or not the feature exists.
-//         */
-//        if (!(FrccbluePlugin.activity?.getPackageManager()?.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE))!!) {
-//            Toast.makeText(FrccbluePlugin.activity?.applicationContext, "您的手机硬件过旧，无法使用本App.", Toast.LENGTH_SHORT).show()
-//            FrccbluePlugin.activity?.finish()
-//            return
-//        }
-//
-//        /*
-//         * Check for advertising support. Not all devices are enabled to advertise
-//         * Bluetooth LE data.
-//         */
-//        if (!mBluetoothAdapter!!.isMultipleAdvertisementSupported()) {
-//            Toast.makeText(FrccbluePlugin.activity?.applicationContext, "No Advertising Support.", Toast.LENGTH_SHORT).show()
-//            FrccbluePlugin.activity?.finish()
-//            return
-//        }
-//
-//        mBluetoothLeAdvertiser = mBluetoothAdapter!!.getBluetoothLeAdvertiser()
-//        mGattServer = mBluetoothManager!!.openGattServer(FrccbluePlugin.activity?.applicationContext, mGattServerCallback)
-//
-//        initServer()
-//        startAdvertising()
     }
 
     private fun ensureBleFeaturesAvailable() {
@@ -240,24 +207,28 @@ class FrccbluePlugin() : MethodCallHandler {
         val service = BluetoothGattService(UUID.fromString(Service_UUID),
                 BluetoothGattService.SERVICE_TYPE_PRIMARY)
 
-        val elapsedCharacteristic = BluetoothGattCharacteristic(UUID.fromString(Characteristic_UUID),
-                //Read write characteristic, supports notifications
-                BluetoothGattCharacteristic.PROPERTY_READ or BluetoothGattCharacteristic.PROPERTY_NOTIFY or BluetoothGattCharacteristic.PROPERTY_WRITE,
-                BluetoothGattCharacteristic.PERMISSION_READ or BluetoothGattCharacteristic.PERMISSION_WRITE or BluetoothGattCharacteristic.PROPERTY_NOTIFY)
+        val readElapsedCharacteristic = BluetoothGattCharacteristic(UUID.fromString(Read_Characteristic_UUID),
+                BluetoothGattCharacteristic.PROPERTY_READ or BluetoothGattCharacteristic.PROPERTY_NOTIFY,
+                BluetoothGattCharacteristic.PERMISSION_READ or BluetoothGattCharacteristic.PROPERTY_NOTIFY)
 
-        val bluetoothGattDescriptor = BluetoothGattDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"), BluetoothGattDescriptor.PERMISSION_READ or BluetoothGattDescriptor.PERMISSION_WRITE)
+        val bluetoothGattReadDescriptor = BluetoothGattDescriptor(UUID.fromString("00002901-0000-1000-8000-00805f9b34fb"), BluetoothGattDescriptor.PERMISSION_READ)
 
-        elapsedCharacteristic.addDescriptor(bluetoothGattDescriptor)
+        readElapsedCharacteristic.addDescriptor(bluetoothGattReadDescriptor)
 
-        service.addCharacteristic(elapsedCharacteristic)
+        val writeElapsedCharacteristic = BluetoothGattCharacteristic(UUID.fromString(Write_Characteristic_UUID),
+                BluetoothGattCharacteristic.PROPERTY_NOTIFY or BluetoothGattCharacteristic.PROPERTY_WRITE,
+                BluetoothGattCharacteristic.PERMISSION_WRITE or BluetoothGattCharacteristic.PROPERTY_NOTIFY)
+
+        val bluetoothGattWriteDescriptor = BluetoothGattDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"), BluetoothGattDescriptor.PERMISSION_WRITE)
+
+        writeElapsedCharacteristic.addDescriptor(bluetoothGattWriteDescriptor)
+
+        service.addCharacteristic(readElapsedCharacteristic)
+        service.addCharacteristic(writeElapsedCharacteristic)
 
         mGattServer!!.addService(service)
     }
 
-    /*
-     * Callback handles all incoming requests from GATT clients.
-     * From connections to read/write requests.
-     */
     private val mGattServerCallback = object : BluetoothGattServerCallback() {
         override fun onConnectionStateChange(device: BluetoothDevice, status: Int, newState: Int) {
             super.onConnectionStateChange(device, status, newState)
@@ -281,7 +252,7 @@ class FrccbluePlugin() : MethodCallHandler {
                                                  characteristic: BluetoothGattCharacteristic) {
             super.onCharacteristicReadRequest(device, requestId, offset, characteristic)
 
-            if (UUID.fromString(Characteristic_UUID) == characteristic.uuid) {
+            if (UUID.fromString(Read_Characteristic_UUID) == characteristic.uuid) {
 
                 val cb = object : MethodChannel.Result {
                     override fun success(p0: Any?) {
@@ -321,7 +292,7 @@ class FrccbluePlugin() : MethodCallHandler {
                     0,
                     null)
 //
-            if (UUID.fromString(Characteristic_UUID) == characteristic.uuid) {
+            if (UUID.fromString(Write_Characteristic_UUID) == characteristic.uuid) {
                 handler.post(Runnable {
                     channel?.invokeMethod("didReceiveWrite", hashMapOf("centraluuidString" to device?.address, "characteristicuuidString" to characteristic.uuid.toString(), "data" to value))
                 })

@@ -1,0 +1,28 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.pauldemarco.frccblue" >
+4
+5    <uses-sdk android:minSdkVersion="21" />
+5-->C:\Users\ShubhamSingh\StudioProjects\frccblue\android\src\main\AndroidManifest.xml
+6
+7    <uses-permission android:name="android.permission.BLUETOOTH" />
+7-->C:\Users\ShubhamSingh\StudioProjects\frccblue\android\src\main\AndroidManifest.xml:4:5-68
+7-->C:\Users\ShubhamSingh\StudioProjects\frccblue\android\src\main\AndroidManifest.xml:4:22-65
+8    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+8-->C:\Users\ShubhamSingh\StudioProjects\frccblue\android\src\main\AndroidManifest.xml:5:5-74
+8-->C:\Users\ShubhamSingh\StudioProjects\frccblue\android\src\main\AndroidManifest.xml:5:22-71
+9    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+9-->C:\Users\ShubhamSingh\StudioProjects\frccblue\android\src\main\AndroidManifest.xml:6:5-80
+9-->C:\Users\ShubhamSingh\StudioProjects\frccblue\android\src\main\AndroidManifest.xml:6:22-78
+10    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+10-->C:\Users\ShubhamSingh\StudioProjects\frccblue\android\src\main\AndroidManifest.xml:7:5-76
+10-->C:\Users\ShubhamSingh\StudioProjects\frccblue\android\src\main\AndroidManifest.xml:7:22-74
+11
+12    <uses-feature
+12-->C:\Users\ShubhamSingh\StudioProjects\frccblue\android\src\main\AndroidManifest.xml:9:5-87
+13        android:name="android.hardware.bluetooth"
+13-->C:\Users\ShubhamSingh\StudioProjects\frccblue\android\src\main\AndroidManifest.xml:9:19-60
+14        android:required="true" />
+14-->C:\Users\ShubhamSingh\StudioProjects\frccblue\android\src\main\AndroidManifest.xml:9:61-84
+15
+16</manifest>
