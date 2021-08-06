@@ -4,14 +4,15 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 
 class Frccblue {
-  static const MethodChannel _channel = const MethodChannel('frccblue');
+  static const MethodChannel _channel =
+  const MethodChannel('bluetooth_peripheral');
 
   static Future<dynamic> init(
       {Function didReceiveRead,
-      Function didReceiveWrite,
-      Function didSubscribeTo,
-      Function didUnsubscribeFrom,
-      Function peripheralManagerDidUpdateState}) async {
+        Function didReceiveWrite,
+        Function didSubscribeTo,
+        Function didUnsubscribeFrom,
+        Function peripheralManagerDidUpdateState}) async {
     _channel.setMethodCallHandler((MethodCall call) {
       print(call.method);
       if (call.method == 'didReceiveRead') {
@@ -39,6 +40,9 @@ class Frccblue {
           return peripheralManagerDidUpdateState(call);
         });
       }
+      return Future(() {
+        return null;
+      });
     });
   }
 
@@ -47,18 +51,27 @@ class Frccblue {
     return version;
   }
 
-  static void stopPeripheral(){
+  static void stopPeripheral() {
     _channel.invokeMethod("stopPeripheral");
   }
 
-  static Future<void> peripheralUpdateValue(String centraluuidString,String characteristicUUID, Uint8List datalist) async {
-    await _channel.invokeMethod("peripheralUpdateValue",{"centraluuidString":centraluuidString,"characteristicuuidString":characteristicUUID,"data":datalist});
+  static Future<void> peripheralUpdateValue(String centraluuidString,
+      String characteristicUUID, Uint8List datalist, bool isRead) async {
+    await _channel.invokeMethod("peripheralUpdateValue", {
+      "centraluuidString": centraluuidString,
+      "characteristicuuidString": characteristicUUID,
+      "data": datalist,
+      "isRead": isRead
+    });
   }
 
-  static Future<String> startPeripheral(
-      String serviceUUID, String characteristicUUID) async {
-    final String version = await _channel.invokeMethod('startPeripheral',
-        {"serviceUUID": serviceUUID, "characteristicUUID": characteristicUUID});
+  static Future<String> startPeripheral(String serviceUUID,
+      String readCharacteristicUUID, String writeCharacteristicUUID) async {
+    final String version = await _channel.invokeMethod('startPeripheral', {
+      "serviceUUID": serviceUUID,
+      "readCharacteristicUUID": readCharacteristicUUID,
+      "writeCharacteristicUUID": writeCharacteristicUUID
+    });
     return version;
   }
 }
