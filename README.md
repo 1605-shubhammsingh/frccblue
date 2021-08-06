@@ -9,19 +9,19 @@ For help getting started with Flutter, view our online
 
 For help on editing plugin code, view the [documentation](https://flutter.io/developing-packages/#edit-plugin-package).
 
-# 平台
-iOS android
+## Supports
+ Android
 
-# 使用
+# Installing
 ```
 dependencies:
   frccblue:
     git:
-      url: https://github.com/frcc00/frccblue
+      url: https://github.com/1605-shubhammsingh/frccblue
 ```
       
       
-# 调用
+# Initialization
 ```
 Frccblue.init(didReceiveRead:(MethodCall call){
       print(call.arguments);
@@ -37,41 +37,38 @@ Frccblue.init(didReceiveRead:(MethodCall call){
       print(call.arguments);
     });
 
-Frccblue.startPeripheral("00000000-0000-0000-0000-AAAAAAAAAAA1", "00000000-0000-0000-0000-AAAAAAAAAAA2").then((_){});
+Here we need to specify different characteristics for read and write however earlier it was single characteristics only
+Frccblue.startPeripheral(serviceUUID, readCharacteristicsUUID, writeCharacteristicsUUID).then((_){});
 ```
 
 # more
 ## peripheralManagerDidUpdateState
-iOS上传状态
+iOS
 ```
 switch peripheral.state {
         case .unknown:
-            print("未知的")
+            print("unknown")
             state = "unknown"
         case .resetting:
-            print("重置中")
+            print("resetting")
             state = "resetting"
         case .unsupported:
-            print("不支持")
+            print("unsupported")
             state = "unsupported"
         case .unauthorized:
-            print("未验证")
+            print("unauthorized")
             state = "unauthorized"
         case .poweredOff:
-            print("未启动")
+            print("poweredOff")
             state = "poweredOff"
             self.peripheralManager?.stopAdvertising()
         case .poweredOn:
-            print("可用")
+            print("poweredOn")
             state = "poweredOn"
 ```
-android上传状态
+android
 ```
 "unknown"
 "poweredOff"
 "poweredOn"
 ```
-
-
-由于iOS没有设备连上和断开连接的回掉，android有；所以统一要求中心设备订阅Characteristic。
-那么didSubscribeTo表示设备连上，didUnsubscribeFrom表示设备断开。android端didUnsubscribeFrom会被触发2次，在设备主动取消订阅的情况下。
