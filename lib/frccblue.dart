@@ -5,14 +5,14 @@ import 'package:flutter/services.dart';
 
 class Frccblue {
   static const MethodChannel _channel =
-  const MethodChannel('bluetooth_peripheral');
+      const MethodChannel('bluetooth_peripheral');
 
   static Future<dynamic> init(
       {Function didReceiveRead,
-        Function didReceiveWrite,
-        Function didSubscribeTo,
-        Function didUnsubscribeFrom,
-        Function peripheralManagerDidUpdateState}) async {
+      Function didReceiveWrite,
+      Function didSubscribeTo,
+      Function didUnsubscribeFrom,
+      Function peripheralManagerDidUpdateState}) async {
     _channel.setMethodCallHandler((MethodCall call) {
       print(call.method);
       if (call.method == 'didReceiveRead') {
