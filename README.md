@@ -12,7 +12,7 @@ For help on editing plugin code, view the [documentation](https://flutter.io/dev
 ## Supports
  Android
 
-# Installing
+## Installing
 ```
 dependencies:
   frccblue:
@@ -21,7 +21,7 @@ dependencies:
 ```
       
       
-# Initialization
+## Initialization
 ```
 Frccblue.init(didReceiveRead:(MethodCall call){
       print(call.arguments);
@@ -41,31 +41,8 @@ Here we need to specify different characteristics for read and write however ear
 Frccblue.startPeripheral(serviceUUID, readCharacteristicsUUID, writeCharacteristicsUUID).then((_){});
 ```
 
-# more
 ## peripheralManagerDidUpdateState
-iOS
-```
-switch peripheral.state {
-        case .unknown:
-            print("unknown")
-            state = "unknown"
-        case .resetting:
-            print("resetting")
-            state = "resetting"
-        case .unsupported:
-            print("unsupported")
-            state = "unsupported"
-        case .unauthorized:
-            print("unauthorized")
-            state = "unauthorized"
-        case .poweredOff:
-            print("poweredOff")
-            state = "poweredOff"
-            self.peripheralManager?.stopAdvertising()
-        case .poweredOn:
-            print("poweredOn")
-            state = "poweredOn"
-```
+
 android
 ```
 "unknown"
