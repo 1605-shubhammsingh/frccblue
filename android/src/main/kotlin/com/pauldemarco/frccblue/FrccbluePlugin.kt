@@ -34,7 +34,7 @@ class FrccbluePlugin() : MethodCallHandler {
 
         @JvmStatic
         fun registerWith(registrar: Registrar): Unit {
-            var channel = MethodChannel(registrar.messenger(), "bluetooth_peripheral")
+            var channel = MethodChannel(registrar.messenger(), "frccblue")
             channel.setMethodCallHandler(FrccbluePlugin())
             FrccbluePlugin.activity = registrar.activity()
             FrccbluePlugin.channel = channel

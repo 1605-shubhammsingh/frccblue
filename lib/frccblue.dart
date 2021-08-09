@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 
 class Frccblue {
   static const MethodChannel _channel =
-      const MethodChannel('bluetooth_peripheral');
+      const MethodChannel('frccblue');
 
   static Future<dynamic> init(
       {Function didReceiveRead,
