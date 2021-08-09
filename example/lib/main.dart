@@ -17,9 +17,9 @@ class _MyAppState extends State<MyApp> {
   String writeReceivedArguments = 'Nothing';
 
   final String serviceUUID = "00000000-0000-0000-0000-AAAAAAAAAAA1";
-  final String readCharacteristicsUUID = "00000000-0000-0000-0000-AAAAAAAAAAA2";
+  final String readCharacteristicsUUID = "000029d1-0000-0000-0000-AAAAAAAAAAA2";
   final String writeCharacteristicsUUID =
-      "00000000-0000-0000-0000-AAAAAAAAAAA3";
+      "000029d2-0000-0000-0000-AAAAAAAAAAA3";
 
   @override
   void initState() {

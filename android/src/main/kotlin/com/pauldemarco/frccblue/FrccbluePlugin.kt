@@ -63,8 +63,8 @@ class FrccbluePlugin() : MethodCallHandler {
             var isRead = call.argument<Boolean>("isRead")
 
             val device = centralsDic.get(centraluuidString)
-//            val characteristic = characteristicsDic.get(characteristicuuidString)
-//            characteristic?.setValue(data)
+            val characteristic = characteristicsDic.get(characteristicuuidString)
+            characteristic?.setValue(data)
             if (isRead == true) {
                 readCharacteristic?.value = data
                 mGattServer?.notifyCharacteristicChanged(device, readCharacteristic, false)
