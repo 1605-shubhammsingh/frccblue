@@ -47,6 +47,7 @@ class FrccbluePlugin() : MethodCallHandler {
         }
         if (call.method.equals("startPeripheral")) {
             print("startPeripheral")
+            Device_Name = call.argument<String>("name").toString()
             Service_UUID = call.argument<String>("serviceUUID").toString()
             Read_Characteristic_UUID = call.argument<String>("readCharacteristicUUID").toString()
             Write_Characteristic_UUID = call.argument<String>("writeCharacteristicUUID").toString()
@@ -79,6 +80,7 @@ class FrccbluePlugin() : MethodCallHandler {
     private var mBluetoothManager: BluetoothManager? = null
     private var mBluetoothAdapter: BluetoothAdapter? = null
     private var mGattServer: BluetoothGattServer? = null
+    private var Device_Name: String = "Ble"
     private var Service_UUID: String = UUID.randomUUID().toString()
     private var Read_Characteristic_UUID: String = UUID.randomUUID().toString()
     private var Write_Characteristic_UUID: String = UUID.randomUUID().toString()
@@ -139,7 +141,8 @@ class FrccbluePlugin() : MethodCallHandler {
 
         mBluetoothManager = activity?.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?
         mBluetoothAdapter = mBluetoothManager?.adapter
-
+        mBluetoothAdapter!!.setName(Device_Name)
+        
         mAdvSettings = AdvertiseSettings.Builder()
                 .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
                 .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
@@ -186,8 +189,9 @@ class FrccbluePlugin() : MethodCallHandler {
 
         mGattServer!!.addService(mBluetoothGattService);
 
-        if (mBluetoothAdapter!!.isMultipleAdvertisementSupported()) {
-            mAdvertiser = mBluetoothAdapter!!.getBluetoothLeAdvertiser();
+        // if (mBluetoothAdapter!!.isMultipleAdvertisementSupported()) {
+         mAdvertiser = mBluetoothAdapter!!.getBluetoothLeAdvertiser();
+        if(mAdvertiser != null){
             mAdvertiser!!.startAdvertising(mAdvSettings, mAdvData, mAdvScanResponse, mAdvCallback);
         } else {
             Toast.makeText(FrccbluePlugin.activity?.applicationContext, "MultipleAdvertisement not Supported", Toast.LENGTH_SHORT).show()

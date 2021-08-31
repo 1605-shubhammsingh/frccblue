@@ -64,9 +64,10 @@ class Frccblue {
     });
   }
 
-  static Future<String> startPeripheral(String serviceUUID,
+  static Future<String> startPeripheral(String name, String serviceUUID,
       String readCharacteristicUUID, String writeCharacteristicUUID) async {
     final String version = await _channel.invokeMethod('startPeripheral', {
+      "name": name,
       "serviceUUID": serviceUUID,
       "readCharacteristicUUID": readCharacteristicUUID,
       "writeCharacteristicUUID": writeCharacteristicUUID

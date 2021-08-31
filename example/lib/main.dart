@@ -72,8 +72,8 @@ class _MyAppState extends State<MyApp> {
       print(call.arguments);
     });
 
-    Frccblue.startPeripheral(
-            serviceUUID, readCharacteristicsUUID, writeCharacteristicsUUID)
+    Frccblue.startPeripheral("frccblue", serviceUUID, readCharacteristicsUUID,
+            writeCharacteristicsUUID)
         .then((_) {});
 
     if (!mounted) return;
